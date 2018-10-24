@@ -1,7 +1,18 @@
 # CarND-Controls-MPC
 Self-Driving Car Engineer Nanodegree Program
 
----
+![figure missed](/images/mpc-image.png)
+
+------
+
+
+## Introduction
+
+This is the fifth project of the second term of Udacity Self-Driving Car Engineer Nanodegree Program. In this program, I used Model Predicted Controller (MPC) to control the car driving along the road. The following figure shows the basic structure of MPC.
+
+![figure missed](/images/mpc-model.png "Basic Structure of MPC")
+
+Basic Structure of MPC [[Ref](https://www.mdpi.com/2075-1702/5/1/6/pdf)]
 
 ## Dependencies
 

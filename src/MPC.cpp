@@ -6,6 +6,12 @@
 using CppAD::AD;
 
 // TODO: Set the timestep length and duration
+/*
+Theoretially, if the model is accurate enough, larger N would be better for more accurate control.
+However, the model is not as accurate as expected, so large N may cause large bias of the predicted path.
+In that case, N was set 10 here which is not too large or too small and it performed well.
+dt was set 0.1 so that the path of the coming 1.1 sec (consider the latency) was predicted which was not too short or too long.
+*/
 size_t N = 10;
 double dt = 0.1;
 
