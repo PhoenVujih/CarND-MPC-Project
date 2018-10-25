@@ -8,11 +8,61 @@ Self-Driving Car Engineer Nanodegree Program
 
 ## Introduction
 
-This is the fifth project of the second term of Udacity Self-Driving Car Engineer Nanodegree Program. In this program, I used Model Predicted Controller (MPC) to control the car driving along the road. The following figure shows the basic structure of MPC.
+This is the fifth project of the second term of Udacity Self-Driving Car Engineer Nanodegree Program. In this program, I used Model Predicted Control (MPC) to control the car driving along the road.
+
+#### Model Predictive Control
+The following figure shows the basic structure of MPC.
 
 ![figure missed](/images/mpc-model.png "Basic Structure of MPC")
 
 Basic Structure of MPC [[Ref](https://www.mdpi.com/2075-1702/5/1/6/pdf)]
+
+In the project, I used a vehicle kinetic model for prediction. Its state consisted of the following parameters: coordinates, `x`, `y`; yaw angle, `psi`, velocity, `v`; cross-track error, `cte`; psi error, `epsi`. The actuator output includes, steering angle, `delta`; acceleration, `a`. The update equations are as follows:
+
+```
+x_[t+1] = x[t] + v[t] * cos(psi[t]) * dt
+y_[t+1] = y[t] + v[t] * sin(psi[t]) * dt
+psi_[t+1] = psi[t] + v[t] / Lf * delta[t] * dt
+v_[t+1] = v[t] + a[t] * dt
+cte[t+1] = f(x[t]) - y[t] + v[t] * sin(epsi[t]) * dt
+epsi[t+1] = psi[t] - psides[t] + v[t] * delta[t] / Lf * dt
+```
+
+#### Timesteps (N) and Timestep Duration (dt)
+
+The final N and dt were set 10 and 0.1 and it performed well. I also tried other combinations by adjusting one parameter while another fixed. The value for dt I tried was from 0.05 to 0.20 with the step 0.5 while the N set 10. It was found that 0.1 was the best for dt without serious erratic driving. The adjusting range for N was from 9 to 11 since 10 was already good enough then. And I found that they performed similar to each other so 10 was kept for N.
+
+####  Waypoints Preprocessing and Polynomial Fitting
+
+Since the waypoits were originally in a global coordinates, they were first transformed to the vehicles perspective.
+
+```
+for (unsigned int i = 0; i < ptsx.size(); i++) {
+  double xdif = ptsx[i]-px_adv;
+  double ydif = ptsy[i]-py_adv;
+  ptsx_vehicle[i] = xdif * cos(-psi_adv) - ydif * sin(-psi_adv);
+  ptsy_vehicle[i] = xdif * sin(-psi_adv) + ydif * cos(-psi_adv);
+}
+```
+
+Then I used 3rd order polynomial fitting to fit the waypoints to get the path to follow.
+
+#### Model Predictive Control with Latency
+
+Due to the existence of latency, the vehicle got the output of actuator later than the moment that it got the 'current state'. So I set the latency and predicted the state right after the latency using the kinetic model.
+
+```
+//Consider the latency, the calculation will start after the time lapse
+double time_lapse = 0.1;
+
+//Predict the state after the latency
+double px_adv = px + (v * cos(psi) * time_lapse);
+double py_adv = py + (v * sin(psi) * time_lapse);
+double psi_adv = psi - ((v * delta * time_lapse)/Lf);
+double v_adv = v + (acceleration * time_lapse);
+```
+
+The I used the predicted state as the initial state and fed it to MPC for vehicle control.
 
 ## Dependencies
 
